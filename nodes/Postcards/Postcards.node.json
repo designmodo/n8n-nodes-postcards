@@ -1,0 +1,18 @@
+{
+	"node": "n8n-nodes-postcards.postcards",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["Marketing"],
+	"resources": {
+		"credentialDocumentation": [
+			{
+				"url": "https://help.designmodo.com/article/537-api-getting-started"
+			}
+		],
+		"primaryDocumentation": [
+			{
+				"url": "https://help.designmodo.com/article/537-api-getting-started"
+			}
+		]
+	}
+}
