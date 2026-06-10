@@ -1,31 +1,44 @@
+# Publishes this n8n community node package to npm on every version tag push.
+# Triggered by `npm run release` locally (which bumps version, tags, and pushes).
+#
+# ─── ONE-TIME SETUP ────────────────────────────────────────────────────────────
+# Option A — OIDC Trusted Publishing (recommended): npmjs.com → package settings →
+#   Trusted Publishers → add this repo + workflow `publish.yml`. Leave NPM_TOKEN unset.
+# Option B — npm Granular/Automation Token: add NPM_TOKEN to repo secrets
+#   (Settings → Secrets and variables → Actions).
+
 name: Publish
 
 on:
-  release:
-    types: [published]
-
-permissions:
-  contents: read
-  id-token: write # required for npm provenance
+  push:
+    tags:
+      - '*.*.*'
 
 jobs:
   publish:
+    name: Publish to npm
     runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write # npm provenance attestation
+      contents: read
+
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: 22
-          registry-url: https://registry.npmjs.org
+          node-version: 'lts/*'
           cache: npm
 
-      - run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-      - run: npm run lint
-
-      - run: npm run build
-
-      - run: npm publish --provenance --access public
+      - name: Release
+        # n8n-node release in CI: lint + build + npm publish with provenance.
+        run: |
+          [ -n "$NPM_TOKEN" ] && npm config set //registry.npmjs.org/:_authToken "$NPM_TOKEN"
+          npm run release
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
